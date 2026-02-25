@@ -87,7 +87,7 @@ inventory_df, activity_df, errors_df = get_fabric_inventory(
 
 ### 5. Lakehouse attachment
 
-The notebook must be **attached to a lakehouse** for the CSV export to work. The `export_to_onelake()` function writes to `/lakehouse/default/Files/`, which is the mounted Files folder of the attached lakehouse.
+The notebook must be **attached to a lakehouse** for the CSV export to work. The `export_to_onelake()` function writes to `/lakehouse/default/Files/csv_exports`, which is the mounted Files folder of the attached lakehouse.
 
 ### 6. Run all cells
 
@@ -97,7 +97,7 @@ Execute the notebook top-to-bottom. Progress is printed at each step. The final 
 - The full inventory table
 - Recent user activity events
 - Any errors encountered
-- A CSV export of the inventory to OneLake (`/lakehouse/default/Files/fabric_items_<timestamp>.csv`)
+- A CSV export of the inventory to OneLake (`/lakehouse/default/Files/csv_exports/fabric_items_<timestamp>.csv`)
 
 ---
 
