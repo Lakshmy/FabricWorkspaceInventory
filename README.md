@@ -2,7 +2,7 @@
 
 Extracts a comprehensive object-level inventory for all Microsoft Fabric workspaces under one or more target capacities using **Power BI Admin REST APIs**. The notebook produces three outputs:
 
-- **Inventory DataFrame** — every semantic model, dataflow, and report across the scanned workspaces, including datasource connection details, refresh schedules, refresh history, storage mode, and workspace-level user permissions.
+- **Inventory DataFrame** — every semantic model, dataflow, and report across the scanned workspaces, including datasource type, connection details, refresh schedules, refresh history, storage mode, and workspace-level user permissions.
 - **Activity DataFrame** — recent user-activity events (views, edits, refreshes, etc.) filtered to the scanned workspaces.
 - **Errors DataFrame** — any API errors encountered during extraction (e.g., inaccessible system datasets).
 
@@ -112,7 +112,7 @@ Execute the notebook top-to-bottom. Progress is printed at each step. The final 
 | 5 | `resolve_capacities()` — map capacity display names to IDs |
 | 6 | `fetch_workspaces()` — retrieve workspaces via Admin API with `$expand` |
 | 7 | `format_permissions()` — format workspace user permission strings |
-| 8 | `get_datasources()` / `format_connection_string()` — extract datasource connection details |
+| 8 | `get_datasources()` / `format_connection_string()` — extract datasource type and connection details |
 | 9 | `get_refresh_schedule()` / `get_refresh_history()` — refresh metadata for semantic models |
 | 10 | `process_semantic_models()` / `process_dataflows()` / `process_reports()` — per-item-type processors |
 | 11 | `fetch_user_activity()` — Admin activity events with multi-day support |
