@@ -112,7 +112,7 @@ Execute the notebook top-to-bottom. Progress is printed at each step. The final 
 | 5 | `resolve_capacities()` — map capacity display names to IDs |
 | 6 | `fetch_workspaces()` — retrieve workspaces via Admin API with `$expand` |
 | 7 | `format_permissions()` — format workspace user permission strings |
-| 8 | `get_datasources()` / `format_connection_string()` — extract datasource type and connection details |
+| 8 | `get_datasources()` / `format_connection_string()` / `get_connection_info()` — extract datasource type and connection details (only for semantic models, dataflows, and reports) |
 | 9 | `get_refresh_schedule()` / `get_refresh_history()` — refresh metadata for semantic models |
 | 10 | `process_semantic_models()` / `process_dataflows()` / `process_reports()` — per-item-type processors |
 | 11 | `fetch_user_activity()` — Admin activity events with multi-day support |
