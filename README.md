@@ -75,7 +75,7 @@ target_capacity_names = [
 
 ### 3. Optionally filter to specific workspaces
 
-In the final execution cell (**Cell 13**), you can limit the scan to specific workspaces by name, or set `workspace_names=None` to scan all workspaces under the target capacities:
+In the execution cell (**Cell 14**), you can limit the scan to specific workspaces by name, or set `workspace_names=None` to scan all workspaces under the target capacities:
 
 ```python
 inventory_df, activity_df, errors_df = get_fabric_inventory(
@@ -85,7 +85,11 @@ inventory_df, activity_df, errors_df = get_fabric_inventory(
 )
 ```
 
-### 4. Run all cells
+### 5. Lakehouse attachment
+
+The notebook must be **attached to a lakehouse** for the CSV export to work. The `export_to_onelake()` function writes to `/lakehouse/default/Files/`, which is the mounted Files folder of the attached lakehouse.
+
+### 6. Run all cells
 
 Execute the notebook top-to-bottom. Progress is printed at each step. The final cell displays:
 
@@ -93,6 +97,7 @@ Execute the notebook top-to-bottom. Progress is printed at each step. The final 
 - The full inventory table
 - Recent user activity events
 - Any errors encountered
+- A CSV export of the inventory to OneLake (`/lakehouse/default/Files/fabric_items_<timestamp>.csv`)
 
 ---
 
@@ -112,7 +117,8 @@ Execute the notebook top-to-bottom. Progress is printed at each step. The final 
 | 10 | `process_semantic_models()` / `process_dataflows()` / `process_reports()` — per-item-type processors |
 | 11 | `fetch_user_activity()` — Admin activity events with multi-day support |
 | 12 | `get_fabric_inventory()` — orchestrator that ties everything together |
-| 13 | Execute and display results |
+| 13 | `export_to_onelake()` — export inventory DataFrame to a timestamped CSV in OneLake |
+| 14 | Execute, display results, and export to OneLake |
 
 ---
 
