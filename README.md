@@ -76,6 +76,35 @@ This repository contains two notebooks with different approaches:
 
 The **scan-based notebook** uses the Admin `getInfo` / `scanResult` flow which returns a global `datasourceInstances` array. This captures connection details for **all** datasource types — including ODBC, JDBC, OData, and gateway-bound sources — that the per-item `/datasources` endpoint may miss.
 
+### Detailed comparison
+
+#### Architecture & API approach
+
+| Aspect | `fabric_inventory.ipynb` | `fabric_inventory_scan.ipynb` |
+|--------|--------------------------|-------------------------------|
+| **API strategy** | **Per-item REST calls** — fetches workspaces with `$expand=users,datasets,dataflows,reports`, then calls individual endpoints per dataset/dataflow for datasources, refresh schedule, and history | **Batch Scan API** — uses the async `getInfo` → `scanStatus` → `scanResult` flow to retrieve all metadata in bulk |
+| **Datasource resolution** | Calls `/admin/datasets/{id}/datasources` and `/admin/dataflows/{id}/datasources` **per item**, plus `Default.GetBoundGatewayDatasources` for gateway-bound ODBC/JDBC sources | Relies on the **global `datasourceInstances` array** returned by the scan result, linked to items via `datasourceUsages` (requires `lineage=True`) |
+| **API call volume** | **High** — O(n) calls where n = total datasets + dataflows (one datasource call per item) | **Low** — a few batch calls regardless of item count (batches of 100 workspaces) |
+| **Tenant setting** | Standard Admin API permissions + *Enhance admin APIs responses with detailed metadata* | Same, plus the scan API also requires *Enhance admin APIs responses with detailed metadata* for `datasourceInstances` to be populated |
+
+#### Key code differences
+
+| Feature | `fabric_inventory.ipynb` | `fabric_inventory_scan.ipynb` |
+|---------|--------------------------|-------------------------------|
+| **Workspace fetch** | `$expand=users,datasets,dataflows,reports` — returns full item metadata inline | Fetches only workspace IDs, then submits them to the scan API |
+| **POST helper** | Not needed | Has `admin_api_post()` for the `getInfo` call |
+| **Scan polling** | N/A | Polls `scanStatus` with configurable interval/timeout, processes in batches of 100 |
+| **Datasource logic** | `get_datasources()` + `get_gateway_datasources()` — direct API calls per item | `build_datasource_lookup()` + `resolve_datasources()` — dictionary lookup from the scan's global `datasourceInstances` array |
+| **Gateway sources** | Explicitly fetches gateway-bound datasources via `GetBoundGatewayDatasources` | Gateway sources are included automatically in `datasourceInstances` when `datasourceDetails=True` |
+| **Item processing** | Separate functions: `process_semantic_models()`, `process_dataflows()`, `process_reports()` | Single function: `process_scan_workspaces()` handles all item types in one loop |
+| **Orchestrator steps** | 4 steps (capacities → workspaces → inventory → activity) | 5 steps (capacities → workspace IDs → scan → inventory → activity) |
+| **Config constants** | None beyond capacity names | `SCAN_POLL_INTERVAL_SECONDS`, `SCAN_MAX_WAIT_SECONDS`, `SCAN_BATCH_SIZE` |
+
+#### When to use which
+
+- **`fabric_inventory.ipynb`** — simpler setup, works without async scan complexity, good for **smaller environments**. More API calls but no polling logic.
+- **`fabric_inventory_scan.ipynb`** — better for **large tenants** (fewer API calls), captures **all datasource types** (ODBC, JDBC, OData, gateway-bound) in one shot via the global `datasourceInstances` array, but requires the additional `lineage=True` parameter and scan polling logic.
+
 ---
 
 ## How to use
