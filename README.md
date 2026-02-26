@@ -59,7 +59,7 @@ The notebook calls the following Admin API endpoints. No explicit Azure AD app r
 
 | Endpoint | Purpose |
 |----------|---------|
-| `POST /v1.0/myorg/admin/workspaces/getInfo?datasourceDetails=True&datasetExpressions=True&getArtifactUsers=True` | Initiate an async workspace scan |
+| `POST /v1.0/myorg/admin/workspaces/getInfo?datasourceDetails=True&datasetSchema=True&datasetExpressions=True&getArtifactUsers=True` | Initiate an async workspace scan |
 | `GET /v1.0/myorg/admin/workspaces/scanStatus/{scanId}` | Poll scan completion status |
 | `GET /v1.0/myorg/admin/workspaces/scanResult/{scanId}` | Retrieve scan results with `datasourceInstances` array |
 
