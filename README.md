@@ -55,13 +55,34 @@ The notebook calls the following Admin API endpoints. No explicit Azure AD app r
 | `GET /v1.0/myorg/admin/datasets/{id}/refreshes?$top=N` | Get recent refresh history for a semantic model |
 | `GET /v1.0/myorg/admin/activityevents?startDateTime=...&endDateTime=...` | Fetch tenant-wide user activity events for a given day |
 
+**Additional endpoints used by `fabric_inventory_scan.ipynb`:**
+
+| Endpoint | Purpose |
+|----------|---------|
+| `POST /v1.0/myorg/admin/workspaces/getInfo?datasourceDetails=True&datasetExpressions=True&getArtifactUsers=True` | Initiate an async workspace scan |
+| `GET /v1.0/myorg/admin/workspaces/scanStatus/{scanId}` | Poll scan completion status |
+| `GET /v1.0/myorg/admin/workspaces/scanResult/{scanId}` | Retrieve scan results with `datasourceInstances` array |
+
+---
+
+## Choosing a notebook
+
+This repository contains two notebooks with different approaches:
+
+| Notebook | Approach | Best for |
+|----------|----------|----------|
+| `fabric_inventory.ipynb` | Per-item Admin API calls (`/admin/datasets/{id}/datasources`) | Quick runs, simpler setup, fewer API permissions |
+| `fabric_inventory_scan.ipynb` | Batch Workspace Scan API (`getInfo` → `scanResult`) | Complete datasource coverage (ODBC, JDBC, gateway-bound), fewer total API calls at scale |
+
+The **scan-based notebook** uses the Admin `getInfo` / `scanResult` flow which returns a global `datasourceInstances` array. This captures connection details for **all** datasource types — including ODBC, JDBC, OData, and gateway-bound sources — that the per-item `/datasources` endpoint may miss.
+
 ---
 
 ## How to use
 
-### 1. Import the notebook
+### 1. Import a notebook
 
-Upload `fabric_inventory.ipynb` to a Fabric workspace attached to a capacity where you have notebook-run permissions.
+Upload `fabric_inventory.ipynb` or `fabric_inventory_scan.ipynb` (or both) to a Fabric workspace attached to a capacity where you have notebook-run permissions.
 
 ### 2. Configure target capacities
 
@@ -101,7 +122,7 @@ Execute the notebook top-to-bottom. Progress is printed at each step. The final 
 
 ---
 
-## Notebook structure
+## Notebook structure — `fabric_inventory.ipynb`
 
 | Cell | Purpose |
 |------|---------|
@@ -119,6 +140,28 @@ Execute the notebook top-to-bottom. Progress is printed at each step. The final 
 | 12 | `get_fabric_inventory()` — orchestrator that ties everything together |
 | 13 | `export_to_onelake()` — export inventory DataFrame to a timestamped CSV in OneLake |
 | 14 | Execute, display results, and export to OneLake |
+
+---
+
+## Notebook structure — `fabric_inventory_scan.ipynb`
+
+| Cell | Purpose |
+|------|---------|
+| 1 | Overview (markdown) |
+| 2 | Imports |
+| 3 | Configuration — target capacity names and scan settings |
+| 4 | `admin_api_get()` / `admin_api_post()` — Admin API helpers with retry |
+| 5 | `resolve_capacities()` — map capacity display names to IDs |
+| 6 | `fetch_workspace_ids()` — retrieve workspace IDs via Admin API |
+| 7 | `scan_workspaces()` — run the async workspace scan (`getInfo` → `scanStatus` → `scanResult`) |
+| 8 | `build_datasource_lookup()` / `resolve_datasources()` — map `datasourceUsages` to connection details |
+| 9 | `format_permissions()` — format workspace user permission strings |
+| 10 | `get_refresh_schedule()` / `get_refresh_history()` — refresh metadata for semantic models |
+| 11 | `process_scan_workspaces()` — build inventory rows from scan results |
+| 12 | `fetch_user_activity()` — Admin activity events with multi-day support |
+| 13 | `get_fabric_inventory_scan()` — orchestrator |
+| 14 | `export_to_onelake()` — export DataFrames to timestamped CSVs in OneLake |
+| 15 | Execute, display results, and export to OneLake |
 
 ---
 
